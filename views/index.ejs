@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>主页 | <%= Sys.cont.siteName %></title>
+    <%- include header.ejs %>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <link href="../static/index.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+<div class="site-wrapper">
+
+    <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+            <div class="masthead clearfix">
+                <div class="inner">
+                    <h3 class="masthead-brand">主页</h3>
+                    <nav>
+                        <ul class="nav masthead-nav">
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="#">Features</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="inner cover" id="video_box">
+                <video id="video1"  autoplay >
+                    <source src="../mov_bbb.mp4" type="video/mp4" />
+                    Your browser does not support HTML5 video.
+                </video>
+                <div class="video_self">
+                    <span>X</span>
+                    <video id="video_self"  autoplay >
+                        <source src="../mov_bbb.mp4" type="video/mp4" />
+                        Your browser does not support HTML5 video.
+                    </video>
+                </div>
+            </div>
+
+            <div id="chat_box">
+                <div id="chat_msg">
+                    <img id="chat_face" src="../static/images/face.png"/>
+                   <input id="chat_input" type="text"/>
+                    <div id="chat_submit">发送</div>
+
+                </div>
+            </div>
+            <div class="mastfoot">
+                <div class="inner">
+                    <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../static/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>
