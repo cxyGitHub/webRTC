@@ -1,13 +1,24 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <title>主页 | <%= Sys.cont.siteName %></title>
     <%- include header.ejs %>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
     <link href="../static/index.css" rel="stylesheet">
+    <script src="../static/index.js"></script>
+    <script>
+        var friends = "<%=friends%>";
+        friends = friends.replace(/&quot;/g,"\"");
+        friends =  JSON.parse(friends);
 
+        var userInfo = "<%=userInfo%>";
+        userInfo = userInfo.replace(/&quot;/g,"\"");
+        userInfo =  JSON.parse(userInfo);
 
+    </script>
+
+    <script src="../webRTC.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -23,23 +34,23 @@
                     <h3 class="masthead-brand">主页</h3>
                     <nav>
                         <ul class="nav masthead-nav">
-                            <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#">Features</a></li>
-                            <li><a href="#">Contact</a></li>
+                            <li class="active"><a href="#">视频</a></li>
+                            <li><a href="#" id="friends">好友</a></li>
+                            <li><a href="#">文件传输</a></li>
                         </ul>
                     </nav>
                 </div>
             </div>
 
             <div class="inner cover" id="video_box">
-                <video id="video1"  autoplay >
+                <video id="other"  autoplay controls="controls">
                     <source src="../mov_bbb.mp4" type="video/mp4" />
                     Your browser does not support HTML5 video.
                 </video>
                 <div class="video_self">
                     <span>X</span>
-                    <video id="video_self"  autoplay >
-                        <source src="../mov_bbb.mp4" type="video/mp4" />
+                    <video id="video_self"  autoplay>
+                   <!--     <source src="../mov_bbb.mp4" type="video/mp4" />-->
                         Your browser does not support HTML5 video.
                     </video>
                 </div>
@@ -53,6 +64,14 @@
 
                 </div>
             </div>
+
+            <div id="mask"></div>
+            <!--好友列表-->
+            <div id="friend_box">
+             <ul></ul>
+            </div>
+
+
             <div class="mastfoot">
                 <div class="inner">
                     <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
@@ -65,10 +84,10 @@
 
 </div>
 
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="../static/dist/js/bootstrap.min.js"></script>
 
+<script>
+    var webRTC = new webRTC();
+    webRTC.connect(userInfo.user_id);
+</script>
 </body>
 </html>

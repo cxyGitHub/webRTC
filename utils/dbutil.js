@@ -252,6 +252,29 @@ Table.prototype.countBySql = function(sql, p,callback) {
     });
 }
 
+
+/**
+ * sql
+ * @param sql
+ * @param callback
+ */
+Table.prototype.querySql = function(sql, callback) {
+    if(!callback){
+        callback=function(){};
+    }
+    this.getConnection(function(connection) {
+        var query = connection.query(sql, function(err, result) {
+            if (err) {
+                callback(err,result);
+            }else{
+                callback(null,result);
+            }
+            connection.release(); //release
+        });
+        logger.debug(query.sql);
+    });
+}
+
 /**
  * query
  * @param params
@@ -262,7 +285,12 @@ Table.prototype.query = function(params,orders, callback) {
     if(!callback){
         callback=function(){};
     }
-    var sql = "select * from " + this.tablename + " where 1=1";
+    var sql = "select  ";
+        for(var i=0;i<this.fields.length;i++){
+            sql+=this.fields[i]+",";
+        }
+       if(sql.lastIndexOf(",")>-1) sql = sql.substring(0,sql.lastIndexOf(","));
+        sql += " from "+this.tablename + " where 1=1";
     if (this.clearTable(params)) {//参数
         for (var pro in params) {
             sql += " and " + pro + "=" + this.pool.escape(params[pro]);

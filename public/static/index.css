@@ -179,3 +179,26 @@ body {
 #chat_face{opacity:0.5; margin: 2px 3px; position: absolute; height:25px; z-index: 1000}
 #chat_input{ width: 100%; border: 0px; height: 30px;background-color: #666666; padding-left: 30px; position: relative; z-index: 999; padding-right: 45px;}
 #chat_submit{ position: absolute; margin-top: -25px; z-index: 1000; right: 30px;}
+
+
+#friend_box{ position: absolute; width: 200px; height: 100%;top: 0px; z-index: 1000;
+    left: -200px; background-color: #333333; opacity: 0.8; overflow-y: auto;
+    transition: left 0.5s;
+    -moz-transition: left 0.5s;	/* Firefox 4 */
+    -webkit-transition: left 0.5s;	/* Safari ºÍ Chrome */
+    -o-transition: left 0.5s;	/* Opera */
+    -webkit-box-shadow:0 0 10px #000000;
+    -moz-box-shadow:0 0 10px #000000;
+    box-shadow:0 0 10px #000000;
+}
+#friend_box ul{  margin: 0px; margin-top: 50px;padding: 0px; padding-left: 10px;}
+#friend_box ul li{ text-align: left; cursor: pointer;
+    width: 90%;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+    margin-top: 20px;
+
+}
+#mask{ position: absolute; width: 100%; display: none;
+    height: 100%; background-color: #000000; opacity: 0.5; top: 0px; left: 0px; z-index: 1000}

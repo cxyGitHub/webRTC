@@ -14,13 +14,13 @@ router.post('/login', function(req, res) {
     var User=DB.get("User");
     var p=req.body;
     var userHash = crypto.createHash('sha1');
-    userHash.update(p.password);
-    p.password=userHash.digest('hex');
-    var password = p.password;
+    userHash.update(p.password+ p.email);
+    var password = userHash.digest('hex');
+    console.log("password:"+password);
     delete p["password"];
     User.query(p,function(err,result){
         if(err){
-      //      next(err);
+      //     next(err);
             console.log("err:"+err);
         }else{
             if(result && result.length>0){
@@ -30,13 +30,13 @@ router.post('/login', function(req, res) {
                    var params = {lastlogintime: new Date(), lastloginip: ip_};//更新登录时间
                    var condition = {user_id: result[0].user_id};//条件
                     User.update(params,condition);
-                   console.log("成功");
-               }else{
-                   res.render('signin',{message:'用户名或密码错误'});
+                   logger.debug("成功");
+                   res.redirect("/home/index");
+                   return;
                }
-            }else{
-                res.render('signin',{message:'用户名或密码错误'});
             }
+            res.render('login',{message:'用户名或密码错误'});
+            logger.debug("用户名或密码错误");
         }
     });
 });
