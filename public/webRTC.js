@@ -54,21 +54,33 @@ webRTC.prototype.connect = function(id) {
                     "eventName": "__agree",
                     "data": {"id": friend_id}
                 });
-              //  that.sendOffers(friend_id);
             });
         }
     });
 
     socket.on("_agree",function(json){
         var friend_id = json.data.id;
+        if(that.localMediaStream!=undefined){
+            that.sendOffers(friend_id);
+            return;
+        }
         that.createStream(function(){
             var pc = that.createPeerConnection(friend_id);
             try {
                 pc.addStream(that.localMediaStream);
             }catch(e){alert(e);}
-            that.sendOffers(friend_id);
+            if(that.localMediaStream==undefined) {
+                socket.emit('message', {
+                    "eventName": "__agree",
+                    "data": {"id": friend_id}
+                });
+            }else{
+                that.sendOffers(friend_id);
+            }
         });
     });
+
+
 
     socket.on('_offer', function(json) {
         that.sendAnswer(json.data.id, json.data.sdp);

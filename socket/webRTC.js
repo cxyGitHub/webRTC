@@ -36,7 +36,7 @@ function webRTC(){
        var f_socket = that.sockets[data.id];
         if (f_socket) {
             f_socket.emit('_agree', {
-                "data": {"id": socket.id}
+                "data": {"id": socket.id,"medis":socket.medis}
             });
         }
     });
