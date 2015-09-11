@@ -11,18 +11,34 @@ $(function(){
     ul.append(html);
 
     $("#friends").click(function(){
-        $("#friend_box").css({left:"0px"});
+        var trans = "translate3d(200px,0,0)";
+        $("#friend_box").css({transform:trans});
         $("#mask").show();
+        setTimeout(function(){
+            $("#mask").css({opacity:0.5});
+        },100);
+
+
     });
 
     $("#mask").click(function(){
-        $("#friend_box").css({left:"-200px"});
-        $("#mask").hide();
-    });
+        var trans = "translate3d(0,0,0)";
+        $("#friend_box").css({transform:trans});
+        $("#mask").css({opacity:0});
+        setTimeout(function(){
+            $("#mask").hide();
+        },500);
 
+
+    });
+    $("#chat_submit").click(function(){
+          var  msg = $("#chat_input").val();
+          webRTC.broadcast(msg);
+    });
 
     $("#friend_box ul").delegate('li','click',function() {
         var friend_id = $(this).attr("id").replace("f_", "");
+        webRTC.closePeerConnection();
         webRTC.socket.emit('message', {
             "eventName": "__jion",
             "data": {"id": friend_id}});

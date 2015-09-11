@@ -36,7 +36,25 @@ function webRTC(){
        var f_socket = that.sockets[data.id];
         if (f_socket) {
             f_socket.emit('_agree', {
-                "data": {"id": socket.id,"medis":socket.medis}
+                "data": {"id": socket.id,"media":data.media}
+            });
+        }
+    });
+
+    this.on("__offerForOther",function(data, socket){
+        var f_socket = that.sockets[data.id];
+        if (f_socket) {
+            f_socket.emit('_offerForOther', {
+                "data": {"id": socket.id}
+            });
+        }
+    })
+
+    this.on("__refuse",function(data, socket){
+        var f_socket = that.sockets[data.id];
+        if (f_socket) {
+            f_socket.emit('_refuse', {
+                "data": {"id": socket.id}
             });
         }
     });

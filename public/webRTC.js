@@ -18,7 +18,8 @@ function webRTC(){
     //本地WebSocket连接
     this.socket = null;
     this.peerConnections = {};
-
+    this.localMediaStream = null;
+    this.dataChannels = {};
 
 }
 
@@ -44,42 +45,57 @@ webRTC.prototype.connect = function(id) {
 
     socket.on("_jion",function(json){
         var friend_id = json.data.id;
+        that.localMediaStream = null;
         if(confirm($("#f_"+friend_id).html()+"邀请视频。")){
             that.createStream(function(){
                 var pc = that.createPeerConnection(friend_id);
                 try {
                     pc.addStream(that.localMediaStream);
-                }catch(e){alert(e);}
+                }catch(e){console.log(e);}
                 socket.emit('message', {
                     "eventName": "__agree",
-                    "data": {"id": friend_id}
+                    "data": {"id": friend_id,"media":that.localMediaStream}
                 });
+            });
+        }else{
+            socket.emit('message', {
+                "eventName": "__refuse",
+                "data": {"id": friend_id}
             });
         }
     });
 
     socket.on("_agree",function(json){
         var friend_id = json.data.id;
-        if(that.localMediaStream!=undefined){
-            that.sendOffers(friend_id);
-            return;
-        }
         that.createStream(function(){
             var pc = that.createPeerConnection(friend_id);
             try {
                 pc.addStream(that.localMediaStream);
             }catch(e){alert(e);}
-            if(that.localMediaStream==undefined) {
+            if(that.localMediaStream==null) {
                 socket.emit('message', {
-                    "eventName": "__agree",
+                    "eventName": "__offerForOther",
                     "data": {"id": friend_id}
                 });
             }else{
+                that.createDataChannel(pc,friend_id);
                 that.sendOffers(friend_id);
             }
         });
     });
 
+
+    socket.on('_offerForOther', function(json) {
+        var friend_id = json.data.id;
+        var pc = that.peerConnections[friend_id];
+        that.createDataChannel(pc,friend_id);
+        that.sendOffers(friend_id);
+    });
+
+
+    socket.on('_refuse', function(json) {
+        alert("拒绝");
+    });
 
 
     socket.on('_offer', function(json) {
@@ -96,6 +112,81 @@ webRTC.prototype.connect = function(id) {
         pc.addIceCandidate(candidate);
     });
 
+}
+
+
+//消息广播
+webRTC.prototype.broadcast = function(message) {
+    for (var i  in this.dataChannels) {
+        this.sendMessage(message, i);
+    }
+};
+
+//发送消息方法
+webRTC.prototype.sendMessage = function(message, friend_id) {
+    if (this.dataChannels[friend_id].readyState.toLowerCase() === 'open') {
+        this.dataChannels[friend_id].send(JSON.stringify({
+            type: "__msg",
+            data: message
+        }));
+    }
+};
+
+
+//创建datachannel
+webRTC.prototype.createDataChannel = function(pc,friend_id){
+    var that = this;
+    var channel = null;
+    try {
+        channel = pc.createDataChannel(0);
+        this.addDataChannel(friend_id, channel);
+    }catch(e){console.log(e);}
+}
+
+webRTC.prototype.addDataChannel = function(friend_id, channel) {
+    var that = this;
+    try {
+        channel.onopen = function() {
+            console.log('data_channel_opened');
+        };
+
+        channel.onclose = function(event) {
+            delete that.dataChannels[friend_id];
+            console.log('data_channel_closed'+ friend_id);
+        };
+
+        channel.onmessage = function(message) {
+            var json;
+            json = JSON.parse(message.data);
+            if (json.type === '__file') {
+                /*that.receiveFileChunk(json);*/
+                that.parseFilePacket(json, socketId);
+            } else {
+                console.log(json);
+                console.log('data_channel_message-'+friend_id+": "+ json.data);
+            }
+        };
+
+        channel.onerror = function(err) {
+            console.log('data_channel_error-'+friend_id+": "+  err);
+        };
+        this.dataChannels[friend_id] = channel;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+
+
+//关闭
+webRTC.prototype.closePeerConnection = function(){
+    for(var i in this.peerConnections){
+        var pc = this.peerConnections[i];
+        try{
+            console.log("close:"+pc);
+            pc.close();
+        }catch(e){console.log(e);}
+    }
 }
 
 webRTC.prototype.receiveAnswer = function(friend_id, sdp) {
@@ -166,9 +257,12 @@ webRTC.prototype.createPeerConnection = function(friend_id) {
     };
 
     pc.onopen = function() {
-       alert("onopen");
+       console.log("onopen");
     };
 
+    pc.onclose = function() {
+        console.log("pcclose");
+    };
     pc.onaddstream = function(evt) {
         var element = document.getElementById("other");
         if (navigator.mozGetUserMedia) {
@@ -181,7 +275,8 @@ webRTC.prototype.createPeerConnection = function(friend_id) {
     };
 
     pc.ondatachannel = function(evt) {
-        alert("ondatachannel");
+        console.log("ondatachannel");
+        that.addDataChannel(friend_id, evt.channel);
     };
     return pc;
 }
